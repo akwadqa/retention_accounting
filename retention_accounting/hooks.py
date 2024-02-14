@@ -4,6 +4,15 @@ app_publisher = "Akwad Programming"
 app_description = "This app makes it possible to book Retention Recievables or Payables when creating Sales or Purchase Invoices."
 app_email = "support@akwad.qa"
 app_license = "mit"
+
+
+fixtures = [
+
+        {"dt" : "Property Setter", "filters" : [["module","in", "Retention Accounting"]]},
+        {"dt" : "Custom Field", "filters" : [["module","in", "Retention Accounting"]]}
+]
+
+
 # required_apps = []
 
 # Includes in <head>
