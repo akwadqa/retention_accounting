@@ -1,7 +1,7 @@
 app_name = "retention_accounting"
 app_title = "Retention Accounting"
 app_publisher = "Akwad Programming"
-app_description = "This app makes it possible to book Retention Recievables or Retention Payables in the Sales / Purchase Invoices."
+app_description = "This app makes it possible to book Retention Recievables or Payables when creating Sales or Purchase Invoices."
 app_email = "support@akwad.qa"
 app_license = "mit"
 # required_apps = []

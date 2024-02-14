@@ -1,6 +1,6 @@
 ## Retention Accounting
 
-This app makes it possible to book Retention Recievables or Retention Payables in the Sales / Purchase Invoices.
+This app makes it possible to book Retention Recievables or Payables when creating Sales or Purchase Invoices.
 
 #### License
 
