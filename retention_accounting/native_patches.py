@@ -1,0 +1,6 @@
+from erpnext.accounts.doctype.purchase_invoice import purchase_invoice
+from erpnext.accounts.doctype.sales_invoice import sales_invoice
+from retention_accounting.native_overrides import make_tax_gl_entries_purchase_invoice, make_tax_gl_entries_sales_invoice
+
+purchase_invoice.PurchaseInvoice.make_tax_gl_entries = make_tax_gl_entries_purchase_invoice
+sales_invoice.SalesInvoice.make_tax_gl_entries = make_tax_gl_entries_sales_invoice
