@@ -8,12 +8,37 @@
 	}
 	</style>
 
-	<h2 class="text-center" style="margin-top:0">{%= __(report.report_name) %}</h2>
-	<h4 class="text-center">
+	{% if (filters.party_account && report.report_name === "Accounts Payable Custom") { %}
+		<h2 class="text-center" style="margin-top:0">Statement of Account - {%= __(filters.party_account) %}</h2>
+	{% } else { %}
+		<h2 class="text-center" style="margin-top:0">{%= __(report.report_name) %}</h2>
+	{% } %}
+
+	{% if (report.report_name === "Accounts Payable Custom" && filters.party && filters.party_type === "Supplier") { %}
+		{% for(var i=0, l=filters.party.length; i<l; i++) { %}
+			{% for(var j=0, h=data.length; j<h; j++) { %}
+				{% if (filters.party[i] === data[j]["party"]) { %}
+					<h4 class="text-center">
+						{%= __(data[j]["supplier_name"]) %}
+					</h4>
+					{% j = h; %}
+				{% } %}
+			{% } %}
+		{% } %}
+	{% } else { %}
+		<h4 class="text-center">
+			{% if (filters.party) { %}
+				{%= __(filters.party) %}
+			{% } %}
+		</h4>
+	{% } %}
+
+	<!-- <h2 class="text-center" style="margin-top:0">{%= __(report.report_name) %}</h2> -->
+	<!-- <h4 class="text-center">
 		{% if (filters.party) { %}
 			{%= __(filters.party) %}
 		{% } %}
-	</h4>
+	</h4> -->
 	<h6 class="text-center">
 			{% if (filters.tax_id) { %}
 			{%= __("Tax Id: ")%}	{%= filters.tax_id %}
@@ -128,9 +153,12 @@
 	<table class="table table-bordered">
 		<thead>
 			<tr>
+
+				<th style="width: 4%; text-align: center;">{%= __("#") %}</th>
+
 				{% if(report.report_name === "Accounts Receivable Custom" || report.report_name === "Accounts Payable Custom") { %}
 					<th style="width: 10%">{%= __("Date") %}</th>
-					<th style="width: 4%">{%= __("Age (Days)") %}</th>
+					<!-- <th style="width: 4%">{%= __("Age (Days)") %}</th> -->
 
 					{% if(report.report_name === "Accounts Receivable Custom" && filters.show_sales_person) { %}
 						<th style="width: 14%">{%= __("Reference") %}</th>
@@ -141,6 +169,11 @@
 					{% if(!filters.show_future_payments) { %}
 						<th style="width: 20%">{%= (filters.party) ? __("Remarks"): __("Party") %}</th>
 					{% } %}
+
+					{% if(report.report_name === "Accounts Payable Custom") { %}
+						<th style="width: 12%">{%= __("Bill No") %}</th>
+					{% } %}
+
 					<th style="width: 10%; text-align: right">{%= __("Invoiced Amount") %}</th>
 					{% if(!filters.show_future_payments) { %}
 						<th style="width: 10%; text-align: right">{%= __("Paid Amount") %}</th>
@@ -167,10 +200,15 @@
 		<tbody>
 			{% for(var i=0, l=data.length; i<l; i++) { %}
 				<tr>
+				
+				{% if(i+1<l) { %}
+					<td style="text-align: center">{%= i+1 %}</td>
+				{% } %}
+
 				{% if(report.report_name === "Accounts Receivable Custom" || report.report_name === "Accounts Payable Custom") { %}
 					{% if(data[i]["party"]) { %}
 						<td>{%= frappe.datetime.str_to_user(data[i]["posting_date"]) %}</td>
-						<td style="text-align: right">{%= data[i]["age"] %}</td>
+						<!-- <td style="text-align: right">{%= data[i]["age"] %}</td> -->
 						<td>
 							{% if(!filters.show_future_payments) { %}
 								{%= data[i]["voucher_type"] %}
@@ -200,6 +238,10 @@
 							{% } %}
 							</div>
 						</td>
+						{% } %}
+
+						{% if(report.report_name === "Accounts Payable Custom") { %}
+							<td style="text-align: right">{%= data[i]["bill_no"] %}</td>
 						{% } %}
 
 						<td style="text-align: right">
