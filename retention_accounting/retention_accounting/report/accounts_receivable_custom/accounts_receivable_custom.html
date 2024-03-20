@@ -8,7 +8,7 @@
 	}
 	</style>
 
-	{% if (filters.party_account && report.report_name === "Accounts Payable Custom") { %}
+	{% if (filters.party_account && (report.report_name === "Accounts Payable Custom" || report.report_name === "Accounts Receivable Custom")) { %}
 		<h2 class="text-center" style="margin-top:0">Statement of Account - {%= __(filters.party_account) %}</h2>
 	{% } else { %}
 		<h2 class="text-center" style="margin-top:0">{%= __(report.report_name) %}</h2>
@@ -20,6 +20,17 @@
 				{% if (filters.party[i] === data[j]["party"]) { %}
 					<h4 class="text-center">
 						{%= __(data[j]["supplier_name"]) %}
+					</h4>
+					{% j = h; %}
+				{% } %}
+			{% } %}
+		{% } %}
+	{% } else if (report.report_name === "Accounts Receivable Custom" && filters.party && filters.party_type === "Customer") { %}
+		{% for(var i=0, l=filters.party.length; i<l; i++) { %}
+			{% for(var j=0, h=data.length; j<h; j++) { %}
+				{% if (filters.party[i] === data[j]["party"]) { %}
+					<h4 class="text-center">
+						{%= __(data[j]["customer_name"]) %}
 					</h4>
 					{% j = h; %}
 				{% } %}
