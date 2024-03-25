@@ -378,6 +378,23 @@ def get_data_with_opening_closing(filters, account_details, accounting_dimension
 	data.append(totals.total)
 
 	# closing
+
+	from frappe.utils import money_in_words
+	if filters.get("presentation_currency"):
+		currency = filters["presentation_currency"]
+	else:
+		if filters.get("company"):
+			currency = get_company_currency(filters["company"])
+		else:
+			company = get_default_company()
+			currency = get_company_currency(company)
+	balance = totals.closing.get("debit") - totals.closing.get("credit")
+	balance_in_words = money_in_words(abs(balance), currency)
+	is_negative = balance < 0
+	if is_negative:
+		balance_in_words = "Negative " + balance_in_words
+	totals.closing.update({"voucher_no": balance_in_words})
+
 	data.append(totals.closing)
 
 	return data
@@ -626,13 +643,13 @@ def get_columns(filters):
 		]
 
 	columns += [
-		{"label": _("Voucher Type"), "fieldname": "voucher_type", "width": 120},
-		{
-			"label": _("Voucher Subtype"),
-			"fieldname": "voucher_subtype",
-			"fieldtype": "Data",
-			"width": 180,
-		},
+		# {"label": _("Voucher Type"), "fieldname": "voucher_type", "width": 120},
+		# {
+		# 	"label": _("Voucher Subtype"),
+		# 	"fieldname": "voucher_subtype",
+		# 	"fieldtype": "Data",
+		# 	"width": 180,
+		# },
 		{
 			"label": _("Voucher No"),
 			"fieldname": "voucher_no",
@@ -640,9 +657,9 @@ def get_columns(filters):
 			"options": "voucher_type",
 			"width": 180,
 		},
-		{"label": _("Against Account"), "fieldname": "against", "width": 120},
-		{"label": _("Party Type"), "fieldname": "party_type", "width": 100},
-		{"label": _("Party"), "fieldname": "party", "width": 100},
+		# {"label": _("Against Account"), "fieldname": "against", "width": 120},
+		# {"label": _("Party Type"), "fieldname": "party_type", "width": 100},
+		# {"label": _("Party"), "fieldname": "party", "width": 100},
 		{"label": _("Project"), "options": "Project", "fieldname": "project", "width": 100},
 	]
 
