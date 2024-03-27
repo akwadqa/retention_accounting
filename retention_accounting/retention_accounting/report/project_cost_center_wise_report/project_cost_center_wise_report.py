@@ -69,12 +69,18 @@ def get_data(accounts, filters, based_on):
 		project = filters.get("project")
 	else:
 		project = None
+        
+	if filters.get("account"):
+		account = filters.get("account")
+	else:
+		account = None
 
 	set_gl_entries_by_account(
 		filters.get("company"),
 		filters.get("from_date"),
 		filters.get("to_date"),
 		project,
+        account,
 		fieldname,
 		gl_entries_by_account,
 		ignore_closing_entries=not flt(filters.get("with_period_closing_entry")),
@@ -208,7 +214,7 @@ def get_columns(filters):
 
 
 def set_gl_entries_by_account(
-	company, from_date, to_date, project, based_on, gl_entries_by_account, ignore_closing_entries=False
+	company, from_date, to_date, project, account, based_on, gl_entries_by_account, ignore_closing_entries=False
 ):
 	"""Returns a dict like { "account": [gl entries], ... }"""
 	additional_conditions = []
@@ -221,6 +227,9 @@ def set_gl_entries_by_account(
 
 	if project:
 		additional_conditions.append("and project = %(project)s")
+        
+	if account:
+		additional_conditions.append("and account = %(account)s")
 
 	gl_entries = frappe.db.sql(
 		"""select posting_date, {based_on} as based_on, debit, credit,
@@ -233,7 +242,7 @@ def set_gl_entries_by_account(
 		order by {based_on}, posting_date""".format(
 			additional_conditions="\n".join(additional_conditions), based_on=based_on
 		),
-		{"company": company, "from_date": from_date, "project": project, "to_date": to_date},
+		{"company": company, "from_date": from_date, "project": project, "account": account, "to_date": to_date},
 		as_dict=True,
 	)
 

@@ -28,6 +28,23 @@ frappe.query_reports["Project Cost Center Wise Report"] = {
 			}
 		},
 		{
+			"fieldname": "project",
+			"label": __("Project"),
+			"fieldtype": "Link",
+			"options": "Project"
+		},
+		{
+			"fieldname": "account",
+			"label": __("Account"),
+			"fieldtype": "Link",
+			"options": "Account",
+			get_data: function(txt) {
+				return frappe.db.get_link_options('Account', txt, {
+					company: frappe.query_report.get_filter_value("company")
+				});
+			}
+		},			
+		{
 			"fieldname": "accounting_dimension",
 			"label": __("Accounting Dimension"),
 			"fieldtype": "Link",
@@ -70,12 +87,6 @@ frappe.query_reports["Project Cost Center Wise Report"] = {
 			"fieldname": "show_zero_values",
 			"label": __("Show zero values"),
 			"fieldtype": "Check"
-		},
-		{
-			"fieldname": "project",
-			"label": __("Project"),
-			"fieldtype": "Link",
-			"options": "Project"
 		}
 	],
 	"formatter": function(value, row, column, data, default_formatter) {
