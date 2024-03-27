@@ -9,7 +9,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letterhead": null,
- "modified": "2024-03-25 12:33:34.493299",
+ "modified": "2024-03-27 11:04:56.918294",
  "modified_by": "Administrator",
  "module": "Retention Accounting",
  "name": "Project Cost Center Wise Report",
@@ -27,6 +27,9 @@
   },
   {
    "role": "Auditor"
+  },
+  {
+   "role": "Finance Manager"
   }
  ]
 }

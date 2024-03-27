@@ -143,7 +143,7 @@ def prepare_data(accounts, filters, total_row, parent_children_map, based_on):
 	for d in accounts:
 		has_value = False
 		row = {
-			"account_name": d.account_name or d.name,
+			"account_name": frappe.get_value("Project", d.name, "project_name") if based_on == "Project" else d.account_name or d.name,
 			"account": d.name,
 			"parent_account": d.parent_account,
 			"indent": d.indent,
