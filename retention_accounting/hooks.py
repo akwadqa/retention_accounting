@@ -38,10 +38,10 @@ fixtures = [
 
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
-doctype_js = {
-    "Purchase Invoice" : "public/js/custom_scripts/purchase_invoice_custom.js",
-    "Sales Invoice" : "public/js/custom_scripts/sales_invoice_custom.js"
-}
+# doctype_js = {
+#     "Purchase Invoice" : "public/js/custom_scripts/purchase_invoice_custom.js",
+#     "Sales Invoice" : "public/js/custom_scripts/sales_invoice_custom.js"
+# }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
