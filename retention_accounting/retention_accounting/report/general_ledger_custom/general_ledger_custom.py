@@ -218,6 +218,20 @@ def get_gl_entries(filters, accounting_dimensions):
 		as_dict=1,
 	)
 
+	for gl_entry in gl_entries:
+		if gl_entry.get("voucher_type") == "Sales Invoice" and "Retention" in gl_entry.get("account"):
+			query = """SELECT description 
+					FROM `tabSales Taxes and Charges` 
+					WHERE parent=%s and parenttype='Sales Invoice'"""
+			voucher_no = gl_entry.get("voucher_no")
+			description_list = frappe.db.sql(query, (voucher_no,), as_dict=True)
+			
+			if description_list:
+				remarks = gl_entry.get("remarks", "")  # default to empty string if not found
+				descriptions = " - ".join([description.get("description") for description in description_list])
+				remarks += " - " + descriptions
+				gl_entry.update({"remarks": remarks})
+
 	if filters.get("presentation_currency"):
 		return convert_to_presentation_currency(gl_entries, currency_map)
 	else:
@@ -395,8 +409,17 @@ def get_data_with_opening_closing(filters, account_details, accounting_dimension
 		balance_in_words = "Negative " + balance_in_words
 	totals.closing.update({"voucher_no": balance_in_words})
 
-	data.append(totals.closing)
+	if filters.project:
+		project_name_list = [frappe.get_value("Project", project, "project_name") for project in filters.project]
+		project_names_string = ", ".join(project_name_list)
+		totals.closing.update({"projects": project_names_string})
 
+	if filters.cost_center:
+		cost_center_name_list = [frappe.get_value("Cost Center", cost_center, "cost_center_name") for cost_center in filters.cost_center]
+		cost_center_names_string = ", ".join(cost_center_name_list)
+		totals.closing.update({"cost_centers": cost_center_names_string})
+
+	data.append(totals.closing)
 	return data
 
 

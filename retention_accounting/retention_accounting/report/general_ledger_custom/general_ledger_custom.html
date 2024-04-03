@@ -22,6 +22,18 @@
 	{% } %}
 </h4>
 
+<h4 class="text-center">
+	{% if (filters.project) { %}
+		{%= data[data.length-1].projects %}
+	{% } %}
+</h4>
+
+<h4 class="text-center">
+	{% if (filters.cost_center) { %}
+		{%= data[data.length-1].cost_centers %}
+	{% } %}
+</h4>
+
 <h6 class="text-center">
 	{% if (filters.tax_id) { %}
 	{%= __("Tax Id: ")%}	{%= filters.tax_id %}
