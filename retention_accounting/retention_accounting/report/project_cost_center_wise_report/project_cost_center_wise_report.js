@@ -123,6 +123,11 @@ frappe.query_reports["Project Cost Center Wise Report"] = {
 
 		if(data.based_on == 'Cost Center'){
 			frappe.route_options["cost_center"] = data.account
+
+			if(frappe.query_report.get_filter_value('project')){
+				frappe.route_options["project"] = frappe.query_report.get_filter_value('project')
+			}
+			
 		} else {
 			frappe.route_options["project"] = data.account
 		}

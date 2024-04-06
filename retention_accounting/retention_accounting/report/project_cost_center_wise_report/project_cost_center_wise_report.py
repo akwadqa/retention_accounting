@@ -27,6 +27,8 @@ def execute(filters=None):
 	accounts = get_accounts_data(based_on, filters.get("company"))
 	data = get_data(accounts, filters, based_on)
 	columns = get_columns(filters)
+	frappe.log_error("columns", columns)
+	frappe.log_error("data", data)
 	return columns, data
 
 
@@ -93,6 +95,11 @@ def get_data(accounts, filters, based_on):
 	data = filter_out_zero_value_rows(
 		data, parent_children_map, show_zero_values=filters.get("show_zero_values")
 	)
+	
+	if filters.get("project"):
+		data.append({
+			"project_name": frappe.get_value("Project", filters.get("project"), "project_name")
+		})
 
 	return data
 

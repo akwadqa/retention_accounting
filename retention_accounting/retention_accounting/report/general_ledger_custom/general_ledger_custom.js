@@ -209,8 +209,13 @@ frappe.query_reports["General Ledger Custom"] = {
 			"fieldname": "ignore_err",
 			"label": __("Ignore Exchange Rate Revaluation Journals"),
 			"fieldtype": "Check"
-		}
+		},
 
+		{
+			"fieldname": "footer",
+			"label": __("Add Footer"),
+			"fieldtype": "Check"
+		}
 
 	]
 }

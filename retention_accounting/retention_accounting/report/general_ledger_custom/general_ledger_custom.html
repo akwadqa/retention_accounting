@@ -123,3 +123,15 @@
 </table>
 <p class="text-right" style="font-weight: bold; margin-bottom: 20px;">{%= data[data.length-1].voucher_no %}</p>
 <p class="text-right text-muted">Printed On {%= frappe.datetime.str_to_user(frappe.datetime.get_datetime_as_string()) %}</p>
+
+{% if (filters.footer) { %}
+	<table style="width: 100%; font-size: 1.17em; font-weight: bold; margin-top: 40px;">
+		<tbody>
+			<tr>
+				<td style="text-align: center;">Accountant</td>
+				<td style="text-align: center;">Finance Manager</td>
+				<td style="text-align: center;">General Manager</td>
+			</tr>
+		</tbody>
+	</table>
+{% } %}
