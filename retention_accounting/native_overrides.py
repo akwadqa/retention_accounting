@@ -1,7 +1,7 @@
 import frappe
 from frappe import _
 from frappe.utils import flt, cint
-from erpnext.accounts.utils import get_account_currency
+from erpnext.accounts.utils import get_account_currency, get_payment_ledger_entries, delink_original_entry
 
 
 # purchase invoice
@@ -138,3 +138,37 @@ def make_tax_gl_entries_sales_invoice(self, gl_entries):
                     item=tax,
                 )
             )
+
+
+
+
+
+def create_payment_ledger_entry(
+	gl_entries, cancel=0, adv_adj=0, update_outstanding="Yes", from_repost=0, partial_cancel=False
+):
+	if gl_entries:
+		ple_map = get_payment_ledger_entries(gl_entries, cancel=cancel)
+
+		for entry in ple_map:
+
+			ple = frappe.get_doc(entry)
+
+			if cancel:
+				delink_original_entry(ple, partial_cancel=partial_cancel)
+			
+			is_retention_payable_account = (
+				entry.get("account") == 
+				frappe.get_value("Company", entry.get("company"), "custom_default_retention_payable_account")
+			)
+			is_retention_receivable_account = (
+				entry.get("account") == 
+				frappe.get_value("Company", entry.get("company"), "custom_default_retention_receivable_account")
+			)
+			if is_retention_payable_account or is_retention_receivable_account:
+				update_outstanding = "No"
+			
+			ple.flags.ignore_permissions = 1
+			ple.flags.adv_adj = adv_adj
+			ple.flags.from_repost = from_repost
+			ple.flags.update_outstanding = update_outstanding
+			ple.submit()
