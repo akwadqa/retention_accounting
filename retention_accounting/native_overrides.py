@@ -2,6 +2,9 @@ import frappe
 from frappe import _
 from frappe.utils import flt, cint
 from erpnext.accounts.utils import get_account_currency, get_payment_ledger_entries, delink_original_entry
+from erpnext.accounts.general_ledger import make_acc_dimensions_offsetting_entry, validate_accounting_period, validate_disabled_accounts, \
+    process_gl_map, save_entries, make_reverse_gl_entries
+from erpnext.accounts.doctype.gl_entry.gl_entry import update_outstanding_amt
 
 
 # purchase invoice
@@ -143,32 +146,113 @@ def make_tax_gl_entries_sales_invoice(self, gl_entries):
 
 
 
+# purchase invoice
+def make_gl_entries_purchase_invoice(self, gl_entries=None, from_repost=False):
+    if not gl_entries:
+        gl_entries = self.get_gl_entries()
+
+    if gl_entries:
+        update_outstanding = "No" if (cint(self.is_paid) or self.write_off_account) else "Yes"
+
+        if self.docstatus == 1:
+            make_gl_entries(
+                gl_entries,
+                update_outstanding=update_outstanding,
+                merge_entries=False,
+                from_repost=from_repost,
+            )
+            self.make_exchange_gain_loss_journal()
+        elif self.docstatus == 2:
+            provisional_entries = [a for a in gl_entries if a.voucher_type == "Purchase Receipt"]
+            make_reverse_gl_entries(voucher_type=self.doctype, voucher_no=self.name)
+            if provisional_entries:
+                for entry in provisional_entries:
+                    frappe.db.set_value(
+                        "GL Entry",
+                        {"voucher_type": "Purchase Receipt", "voucher_detail_no": entry.voucher_detail_no},
+                        "is_cancelled",
+                        1,
+                    )
+
+        if update_outstanding == "No":
+            update_outstanding_amt(
+                self.credit_to,
+                "Supplier",
+                self.supplier,
+                self.doctype,
+                self.return_against if cint(self.is_return) and self.return_against else self.name,
+            )
+
+    elif self.docstatus == 2 and cint(self.update_stock) and self.auto_accounting_for_stock:
+        make_reverse_gl_entries(voucher_type=self.doctype, voucher_no=self.name)
+
+
+
+
+# general_ledger
+def make_gl_entries(
+	gl_map,
+	cancel=False,
+	adv_adj=False,
+	merge_entries=True,
+	update_outstanding="Yes",
+	from_repost=False,
+):
+    if gl_map:
+        if not cancel:
+            make_acc_dimensions_offsetting_entry(gl_map)
+            validate_accounting_period(gl_map)
+            validate_disabled_accounts(gl_map)
+            gl_map = process_gl_map(gl_map, merge_entries)
+            if gl_map and len(gl_map) > 1:
+                create_payment_ledger_entry(
+                    gl_map,
+                    cancel=0,
+                    adv_adj=adv_adj,
+                    update_outstanding=update_outstanding,
+                    from_repost=from_repost,
+                )
+                save_entries(gl_map, adv_adj, update_outstanding, from_repost)
+            # Post GL Map proccess there may no be any GL Entries
+            elif gl_map:
+                frappe.throw(
+                    _(
+                        "Incorrect number of General Ledger Entries found. You might have selected a wrong Account in the transaction."
+                    )
+                )
+        else:
+            make_reverse_gl_entries(gl_map, adv_adj=adv_adj, update_outstanding=update_outstanding)
+
+
+
+
+
 def create_payment_ledger_entry(
 	gl_entries, cancel=0, adv_adj=0, update_outstanding="Yes", from_repost=0, partial_cancel=False
 ):
-	if gl_entries:
-		ple_map = get_payment_ledger_entries(gl_entries, cancel=cancel)
+    if gl_entries:
+        ple_map = get_payment_ledger_entries(gl_entries, cancel=cancel)
 
-		for entry in ple_map:
+        for entry in ple_map:
 
-			ple = frappe.get_doc(entry)
+            ple = frappe.get_doc(entry)
 
-			if cancel:
-				delink_original_entry(ple, partial_cancel=partial_cancel)
-			
-			is_retention_payable_account = (
-				entry.get("account") == 
-				frappe.get_value("Company", entry.get("company"), "custom_default_retention_payable_account")
-			)
-			is_retention_receivable_account = (
-				entry.get("account") == 
-				frappe.get_value("Company", entry.get("company"), "custom_default_retention_receivable_account")
-			)
-			if is_retention_payable_account or is_retention_receivable_account:
-				update_outstanding = "No"
-			
-			ple.flags.ignore_permissions = 1
-			ple.flags.adv_adj = adv_adj
-			ple.flags.from_repost = from_repost
-			ple.flags.update_outstanding = update_outstanding
-			ple.submit()
+            if cancel:
+                delink_original_entry(ple, partial_cancel=partial_cancel)
+            
+            is_retention_payable_account = (
+                entry.get("account") == 
+                frappe.get_value("Company", entry.get("company"), "custom_default_retention_payable_account")
+            )
+            is_retention_receivable_account = (
+                entry.get("account") == 
+                frappe.get_value("Company", entry.get("company"), "custom_default_retention_receivable_account")
+            )
+            if is_retention_payable_account or is_retention_receivable_account:
+                update_outstanding = "No"
+
+            ple.flags.ignore_permissions = 1
+            ple.flags.adv_adj = adv_adj
+            ple.flags.from_repost = from_repost
+            ple.flags.update_outstanding = update_outstanding
+            ple.submit()
