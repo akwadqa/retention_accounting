@@ -189,6 +189,7 @@ def make_gl_entries_purchase_invoice(self, gl_entries=None, from_repost=False):
 
 
 
+
 # general_ledger
 def make_gl_entries(
 	gl_map,
