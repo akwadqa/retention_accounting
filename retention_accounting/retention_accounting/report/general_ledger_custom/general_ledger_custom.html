@@ -52,18 +52,22 @@
 <hr>
 <table class="table table-bordered" style="border: 1px dashed;">
 	<thead>
-		<tr>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc; border-top: 1px solid green; border-bottom: 1px solid green;">{%= __("Posting Date") %}</th>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc; border-top: 1px solid green; border-bottom: 1px solid green;">{%= __("Voucher No & Bill No") %}</th>
-			<th style="width: 25%; color: black; font-weight: bold; background-color: #dcdcdc; border-top: 1px solid green; border-bottom: 1px solid green;">{%= __("Details") %}</th>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc; border-top: 1px solid green; border-bottom: 1px solid green;">{%= __("Debit") %}</th>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc; border-top: 1px solid green; border-bottom: 1px solid green;">{%= __("Credit") %}</th>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc; border-top: 1px solid green; border-bottom: 1px solid green;">{%= __("Balance (Dr - Cr)") %}</th>
+		<tr style="border-top: 3px solid green; border-bottom: 3px solid green;">
+			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Posting Date") %}</th>
+			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Voucher No & Bill No") %}</th>
+			<th style="width: 25%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Details") %}</th>
+			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Debit") %}</th>
+			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Credit") %}</th>
+			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Balance (Dr - Cr)") %}</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for(var i=0, l=data.length; i<l; i++) { %}
-			<tr>
+			{% if(i === l-3) { %}
+				<tr style="border-bottom: 3px solid green;">
+			{% } else { %}
+				<tr>
+			{% } %}
 			{% if(data[i].posting_date) { %}
 				<td style="border: 1px dashed;">{%= frappe.datetime.str_to_user(data[i].posting_date) %}</td>
 				<td style="border: 1px dashed;">
@@ -106,12 +110,17 @@
 
 			</tr>
 		{% } %}
+		<tr style="border-bottom: 3px solid green;">
+			<td style="border: 1px dashed;"></td>
+			<td style="border: 1px dashed;"></td>
+			<td style="border: 1px dashed; font-weight: bold;">{%= __("Amount in Words") %}</td>
+			<td style="border: 1px dashed; font-weight: bold; text-align: right;" colspan="3">{%= data[data.length-1].voucher_no %}</td>
+		</tr>
 	</tbody>
 </table>
-<p class="text-right" style="font-weight: bold; margin-bottom: 20px;">{%= data[data.length-1].voucher_no %}</p>
 
 {% if (filters.footer) { %}
-	<table style="width: 100%; font-size: 1.17em; font-weight: bold; margin-top: 50px;">
+	<table style="width: 100%; font-size: 1.17em; font-weight: bold; margin-top: 80px;">
 		<tbody>
 			<tr>
 				<td style="text-align: center;">Accountant</td>
