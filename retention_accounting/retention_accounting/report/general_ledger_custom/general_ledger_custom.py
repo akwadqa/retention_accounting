@@ -48,6 +48,13 @@ def execute(filters=None):
 
 	res = get_result(filters, account_details)
 
+	if res:
+		for r in res:
+			if r.get("project"):
+				r.update({
+					"project": frappe.get_value("Project", r.get("project"), "project_name")
+				})
+				
 	return columns, res
 
 
