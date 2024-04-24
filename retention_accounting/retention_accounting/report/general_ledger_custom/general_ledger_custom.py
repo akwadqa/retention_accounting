@@ -54,6 +54,18 @@ def execute(filters=None):
 				r.update({
 					"project": frappe.get_value("Project", r.get("project"), "project_name")
 				})
+
+			if r.get("voucher_type") and r.get("voucher_type") == "Payment Entry":
+				if frappe.get_value("Payment Entry", r.get("voucher_no"), "payment_type") == "Pay":
+					if r.get("credit"):
+						r.update({
+							"remarks": frappe.get_value("Payment Entry", r.get("voucher_no"), "party_name")
+						})
+				elif frappe.get_value("Payment Entry", r.get("voucher_no"), "payment_type") == "Receive":
+					if r.get("debit"):
+						r.update({
+							"remarks": frappe.get_value("Payment Entry", r.get("voucher_no"), "party_name")
+						})
 				
 	return columns, res
 
