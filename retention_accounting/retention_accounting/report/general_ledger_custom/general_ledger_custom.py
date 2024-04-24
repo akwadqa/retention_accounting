@@ -66,6 +66,13 @@ def execute(filters=None):
 						r.update({
 							"remarks": frappe.get_value("Payment Entry", r.get("voucher_no"), "party_name")
 						})
+
+			if r.get("voucher_type") and r.get("voucher_type") == "Sales Invoice":
+				debit_to = frappe.get_value("Sales Invoice", r.get("voucher_no"), "debit_to")
+				if debit_to and r.get("account") == debit_to:
+					r.update({
+							"remarks": frappe.get_value("Sales Invoice", r.get("voucher_no"), "customer_name")
+						})
 				
 	return columns, res
 
