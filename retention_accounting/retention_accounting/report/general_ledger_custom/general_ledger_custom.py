@@ -73,7 +73,15 @@ def execute(filters=None):
 					r.update({
 							"remarks": frappe.get_value("Sales Invoice", r.get("voucher_no"), "customer_name")
 						})
-				
+			
+			# if r.get("voucher_type") and r.get("voucher_type") == "Journal Entry":
+			# 	r.update({"remarks": ""})
+
+			if r.get("party"):
+				fieldname = get_party_name(r.get("party_type"))
+				if fieldname:
+					r.update({"party": frappe.db.get_value(r.get("party_type"), r.get("party"), fieldname)})
+
 	return columns, res
 
 
@@ -707,8 +715,8 @@ def get_columns(filters):
 			"width": 180,
 		},
 		# {"label": _("Against Account"), "fieldname": "against", "width": 120},
-		# {"label": _("Party Type"), "fieldname": "party_type", "width": 100},
-		# {"label": _("Party"), "fieldname": "party", "width": 100},
+		{"label": _("Party Type"), "fieldname": "party_type", "width": 100},
+		{"label": _("Party"), "fieldname": "party", "width": 100},
 		{"label": _("Project"), "options": "Project", "fieldname": "project", "width": 100},
 	]
 
@@ -739,3 +747,20 @@ def get_columns(filters):
 		columns.extend([{"label": _("Remarks"), "fieldname": "remarks", "width": 400}])
 
 	return columns
+
+def get_party_name(party_type):
+	fieldname = None
+				
+	if party_type == "Customer":
+		fieldname = "customer_name"
+
+	elif party_type == "Supplier":
+		fieldname = "supplier_name"
+
+	elif party_type == "Employee":
+		fieldname = "employee_name"
+
+	elif party_type == "Member":
+		fieldname = "member_name"
+
+	return fieldname
