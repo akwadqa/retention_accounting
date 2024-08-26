@@ -120,7 +120,7 @@ def make_tax_gl_entries_sales_invoice(self, gl_entries):
         if flt(tax.base_tax_amount_after_discount_amount):
             account_currency = get_account_currency(tax.account_head)
 
-            dr_or_cr = "debit" if frappe.get_value("Account", tax.account_head, "account_type") == "Receivable" else "credit"
+            dr_or_cr = "debit" if tax.add_deduct_tax == "Deduct" else "credit"
 
             gl_entries.append(
                 self.get_gl_dict(
@@ -134,13 +134,33 @@ def make_tax_gl_entries_sales_invoice(self, gl_entries):
                             else flt(amount, tax.precision("tax_amount_after_discount_amount"))
                         ),
                         "cost_center": tax.cost_center,
-                        "party_type": "Customer" if frappe.get_value("Account", tax.account_head, "account_type") == "Receivable" else None,
-						"party": self.customer if frappe.get_value("Account", tax.account_head, "account_type") == "Receivable" else None
+                        "party_type": "Customer" if tax.add_deduct_tax == "Deduct" else None,
+						"party": self.customer if tax.add_deduct_tax == "Deduct" else None,
+                        "project": self.project if tax.add_deduct_tax == "Deduct" else None,
                     },
                     account_currency,
                     item=tax,
                 )
             )
+
+
+def get_tax_amount_if_for_valuation_or_deduction(self, tax_amount, tax):
+    # if just for valuation, do not add the tax amount in total
+    # if tax/charges is for deduction, multiply by -1
+    if getattr(tax, "category", None):
+        tax_amount = 0.0 if (tax.category == "Valuation") else tax_amount
+        if self.doc.doctype in [
+            "Purchase Order",
+            "Purchase Invoice",
+            "Purchase Receipt",
+            "Supplier Quotation",
+        ]:
+            tax_amount *= -1.0 if (tax.add_deduct_tax == "Deduct") else 1.0
+    
+    elif self.doc.doctype == "Sales Invoice":
+        tax_amount *= -1.0 if (tax.add_deduct_tax == "Deduct") else 1.0
+
+    return tax_amount
 
 
 
