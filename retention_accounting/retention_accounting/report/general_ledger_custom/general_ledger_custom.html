@@ -53,12 +53,12 @@
 <table class="table table-bordered" style="border: 1px dashed;">
 	<thead>
 		<tr style="border-top: 3px solid green; border-bottom: 3px solid green;">
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Posting Date") %}</th>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Voucher No & Bill No") %}</th>
-			<th style="width: 25%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Details") %}</th>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Debit") %}</th>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Credit") %}</th>
-			<th style="width: 15%; color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Balance (Dr - Cr)") %}</th>
+			<th style="width:10%;color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Posting Date") %}</th>
+			<th style="width:15%;color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Voucher No & Bill No") %}</th>
+			<th style="color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Details") %}</th>
+			<th style="color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Debit QAR") %}</th>
+			<th style="color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Credit QAR") %}</th>
+			<th style="color: black; font-weight: bold; background-color: #dcdcdc;">{%= __("Balance (Dr - Cr) QAR") %}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -81,36 +81,35 @@
 					</span>
 				</td>
 				<td style="text-align: right; border: 1px dashed;">
-					{%= format_currency(data[i].debit, filters.presentation_currency, 2) %}
+					{%= format_currency(data[i].debit," ", 2) %}
 				</td>
 				<td style="text-align: right; border: 1px dashed;">
-					{%= format_currency(data[i].credit, filters.presentation_currency, 2) %}
+					{%= format_currency(data[i].credit," ",  2) %}
 				</td>
 			{% } else { %}
 				<td colspan="3" style="border: 1px dashed;"><b>{%= frappe.format(data[i].account, {fieldtype: "Link"}) || "&nbsp;" %}</b></td>
 				<td style="text-align: right; border: 1px dashed;">
-					{%= data[i].account && format_currency(data[i].debit, filters.presentation_currency || data[i].account_currency, 2) %}
+					{%= data[i].account && format_currency(data[i].debit," ", 2) %}
 				</td>
 				<td style="text-align: right; border: 1px dashed;">
-					{%= data[i].account && format_currency(data[i].credit, filters.presentation_currency || data[i].account_currency, 2) %}
+					{%= data[i].account && format_currency(data[i].credit," ", 2) %}
 				</td>
 			{% } %}
 
 			{% if(i === l-1 || i === l-2) { %}
 				<td style="text-align: right; font-weight: bold; border: 1px dashed;">
-					{%= format_currency(data[i].balance, filters.presentation_currency || data[i].account_currency, 2) %}
+					{%= format_currency(data[i].balance," ", 2) %}
 				</td>
 			{% } else { %}
 				<td style="text-align: right; border: 1px dashed;">
-					{%= format_currency(data[i].balance, filters.presentation_currency || data[i].account_currency, 2) %}
+					{%= format_currency(data[i].balance," ", 2) %}
 				</td>
 			{% } %}
 
 			</tr>
 		{% } %}
 		<tr style="border-bottom: 3px solid green;">
-			<td colspan ="3" style="border: 1px dashed;font-weight: bold;">{%= __("Amount in Words") %}</td>
-			<td style="border: 1px dashed; font-weight: bold; text-align: right;" colspan="3">{%= data[data.length-1].voucher_no %}</td>
+			<td colspan ="6" style="border: 1px dashed;font-weight: bold;">{%= __("Amount in Words") %}: {%= data[data.length-1].voucher_no %}</td>
 		</tr>
 	</tbody>
 </table>
