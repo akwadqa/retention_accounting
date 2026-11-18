@@ -20,6 +20,16 @@ def execute(filters=None):
 	return AccountsReceivableSummary(filters).run(args)
 
 
+class ReceivablePayableReportWithProject(ReceivablePayableReport):
+	"""Native AR report plus the Project filter, which older ERPNext v15 releases do not apply."""
+
+	def prepare_conditions(self):
+		super().prepare_conditions()
+
+		if self.filters.get("project"):
+			self.qb_selection_filter.append(self.ple.project.isin(self.filters.project))
+
+
 class AccountsReceivableSummary(ReceivablePayableReport):
 	def run(self, args):
 		self.account_type = args.get("account_type")
@@ -33,7 +43,7 @@ class AccountsReceivableSummary(ReceivablePayableReport):
 
 	def get_data(self, args):
 		self.data = []
-		self.receivables = ReceivablePayableReport(self.filters).run(args)[1]
+		self.receivables = ReceivablePayableReportWithProject(self.filters).run(args)[1]
 		self.currency_precision = get_currency_precision() or 2
 
 		self.get_party_total(args)

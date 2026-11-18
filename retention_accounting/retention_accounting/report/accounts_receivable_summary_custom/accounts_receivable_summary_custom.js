@@ -24,6 +24,13 @@ frappe.query_reports["Accounts Receivable Summary Custom"] = {
 			"default": "Due Date"
 		},
 		{
+			"fieldname": "calculate_ageing_with",
+			"label": __("Calculate Ageing With"),
+			"fieldtype": "Select",
+			"options": 'Report Date\nToday Date',
+			"default": "Report Date"
+		},
+		{
 			"fieldname":"range1",
 			"label": __("Ageing Range 1"),
 			"fieldtype": "Int",
@@ -70,6 +77,17 @@ frappe.query_reports["Accounts Receivable Summary Custom"] = {
 					}
 				}
 			}
+		},
+		{
+			"fieldname": "project",
+			"label": __("Project"),
+			"fieldtype": "MultiSelectList",
+			"options": "Project",
+			get_data: function(txt) {
+				return frappe.db.get_link_options("Project", txt, {
+					company: frappe.query_report.get_filter_value("company"),
+				});
+			},
 		},
 		{
 			"fieldname":"party_type",

@@ -48,7 +48,7 @@ class ReceivablePayableReport(object):
 		self.filters.report_date = getdate(self.filters.report_date or nowdate())
 		self.age_as_on = (
 			getdate(nowdate())
-			if self.filters.report_date > getdate(nowdate())
+			if self.filters.calculate_ageing_with == "Today Date"
 			else self.filters.report_date
 		)
 
