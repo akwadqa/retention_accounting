@@ -5,10 +5,11 @@ from retention_accounting.retention_accounting.report.accounts_receivable_custom
 	ReceivablePayableReport as AccountsReceivableCustom,
 )
 from retention_accounting.retention_accounting.report.accounts_receivable_summary_custom.accounts_receivable_summary_custom import (
+	AccountsReceivableSummary,
 	ReceivablePayableReportWithProject,
 )
 
-REPORT_CLASSES = (AccountsReceivableCustom, ReceivablePayableReportWithProject)
+REPORT_CLASSES = (AccountsReceivableCustom, ReceivablePayableReportWithProject, AccountsReceivableSummary)
 
 
 class TestAccountsReceivableCustomAgeing(FrappeTestCase):
@@ -25,3 +26,10 @@ class TestAccountsReceivableCustomAgeing(FrappeTestCase):
 		for report_class in REPORT_CLASSES:
 			report = report_class({"report_date": report_date, "calculate_ageing_with": "Today Date"})
 			self.assertEqual(report.age_as_on, getdate(nowdate()), report_class.__name__)
+
+	def test_ages_as_on_report_date_when_filter_missing(self):
+		report_date = getdate(add_days(nowdate(), -200))
+
+		for report_class in REPORT_CLASSES:
+			report = report_class({"report_date": report_date})
+			self.assertEqual(report.age_as_on, report_date, report_class.__name__)
