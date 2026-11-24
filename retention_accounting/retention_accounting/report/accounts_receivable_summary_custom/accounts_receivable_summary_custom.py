@@ -4,7 +4,7 @@
 
 import frappe
 from frappe import _, scrub
-from frappe.utils import cint, flt
+from frappe.utils import cint, flt, getdate, nowdate
 
 from erpnext.accounts.party import get_partywise_advanced_payment_amount
 from erpnext.accounts.report.accounts_receivable.accounts_receivable import ReceivablePayableReport
@@ -20,7 +20,24 @@ def execute(filters=None):
 	return AccountsReceivableSummary(filters).run(args)
 
 
-class ReceivablePayableReportWithProject(ReceivablePayableReport):
+class AgeAsOnReportDate:
+	"""Age from the report date unless Today Date is selected.
+
+	ERPNext v15 renamed the native filter from calculate_ageing_with to age_as_on (and
+	Today Date to Today), and ages from today when its filter is missing. Set age_as_on
+	here from this report's own filter, so the result does not depend on the ERPNext version.
+	"""
+
+	def __init__(self, filters=None):
+		super().__init__(filters)
+		self.age_as_on = (
+			getdate(nowdate())
+			if self.filters.get("calculate_ageing_with") == "Today Date"
+			else self.filters.report_date
+		)
+
+
+class ReceivablePayableReportWithProject(AgeAsOnReportDate, ReceivablePayableReport):
 	"""Native AR report plus the Project filter, which older ERPNext v15 releases do not apply."""
 
 	def prepare_conditions(self):
@@ -30,7 +47,7 @@ class ReceivablePayableReportWithProject(ReceivablePayableReport):
 			self.qb_selection_filter.append(self.ple.project.isin(self.filters.project))
 
 
-class AccountsReceivableSummary(ReceivablePayableReport):
+class AccountsReceivableSummary(AgeAsOnReportDate, ReceivablePayableReport):
 	def run(self, args):
 		self.account_type = args.get("account_type")
 		self.party_type = get_party_types_from_account_type(self.account_type)
